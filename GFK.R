@@ -29,6 +29,8 @@ RaceGFK$cons4<-as.numeric(RaceGFK$cons4)
 class(RaceGFK$race)
 RaceGFK$race<-as.numeric(RaceGFK$race)
 
+univ<-data.frame(RaceGFK$univ1,RaceGFK$univ2,RaceGFK$univ3,RaceGFK$univ4)
+cons<-data.frame(RaceGFK$cons1,RaceGFK$cons2,RaceGFK$cons3,RaceGFK$cons4)
 #remove NA
 RaceGFK<-RaceGFK[(!is.na(RaceGFK$univ1)&!is.na(RaceGFK$univ2)&!is.na(RaceGFK$univ3)
                     &!is.na(RaceGFK$univ4)&!is.na(RaceGFK$cons1)&!is.na(RaceGFK$cons2)
@@ -39,3 +41,9 @@ model<-'Universalism=~univ1+univ2+univ3+univ4
         Conservation=~cons1+cons2+cons3+cons4'
 MLMresults<-cfa(model,data=RaceGFK,group="race",estimator="MLM")
 summary(MLMresults,fit.measures=TRUE,standardized=TRUE)
+table(RaceGFK$race)
+fitmeasures(MLMresults)
+
+#create visualization 
+library(semPlot)
+semPaths(MLMresults,what="std", nCharNodes=1, rotation=2,intercepts=FALSE)
