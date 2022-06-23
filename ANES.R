@@ -59,8 +59,8 @@ class(anescpv$weight)
 #removing NAs from practice subset
 colnames(anes2016)
 anescpv<-anescpv[(!is.na(anescpv$egal_donecess)&!is.na(anescpv$egal_worryless)&!is.na(anescpv$egal_notbigprob)
-                          &!is.na(anescpv$egal_fewerprobs)&!is.na(anescpv$trad_adjmoral)&!is.na(anescpv$trad_lifestyl)
-                          &!is.na(anescpv$trad_tolerant)&!is.na(anescpv$trad_moretard)&!is.na(anescpv$race)),]
+                  &!is.na(anescpv$egal_fewerprobs)&!is.na(anescpv$trad_adjmoral)&!is.na(anescpv$trad_lifestyl)
+                  &!is.na(anescpv$trad_tolerant)&!is.na(anescpv$trad_moretard)&!is.na(anescpv$race)),]
 summary(anescpv)
 #model for data from subset
 library(lavaan)
@@ -69,14 +69,5 @@ model<-'Equality=~egal_donecess+egal_worryless+egal_notbigprob+egal_fewerprobs
 MLMresults<-cfa(model,data=anescpv,group="race",sampling.weights="weight",estimator="MLM")
 summary(MLMresults,fit.measures=TRUE,standardized=TRUE)
 
-#removing NA from full dataset
-anes2016<-anes2016[(!is.na(anes2016$V162243)&!is.na(anes2016$V162244)&!is.na(anes2016$V162245)
-                  &!is.na(anes2016$V162246)&!is.na(anes2016$V162207)&!is.na(anes2016$V162208)
-                  &!is.na(anes2016$V162209)&!is.na(anes2016$V162210)),]
-
-
-#model for data in full set
-model2<-'Equality=~V162243+V162244+V162245+V162246
-        MoralTraditionalism=~V162207+V162208+V162209+V162210'
-MLMresults2<-cfa(model2,data=anes2016,group="V161310x",sampling.weights="V160102",estimator="MLM")
-summary(MLMSresults2,fit.measures=TRUE,standardized=TRUE)
+lavInspect(MLMresults,"cor.all")
+summary(anescpv$race==6)
