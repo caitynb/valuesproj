@@ -37,7 +37,7 @@ table(anes2016$V161342)
 
 #change all columns in subset to numeric
 class(anescpv$egal_donecess)
-anescpv$egal_donecess<-as.numeric(anescpv$egal_donecess)
+ anescpv$egal_donecess<-as.numeric(anescpv$egal_donecess)
 class(anescpv$egal_worryless)
 anescpv$egal_worryless<-as.numeric(anescpv$egal_worryless)
 class(anescpv$egal_notbigprob)
@@ -53,7 +53,7 @@ anescpv$trad_tolerant<-as.numeric(anescpv$trad_tolerant)
 class(anescpv$trad_moretard)
 anescpv$trad_moretard<-as.numeric(anescpv$trad_moretard)
 class(anescpv$race)
-anescpv$race<-as.numeric(anescpv$race)
+anescpv$race<-as.character(anescpv$race)
 class(anescpv$weight)
 
 #removing NAs from practice subset
@@ -66,8 +66,7 @@ summary(anescpv)
 library(lavaan)
 model<-'Equality=~egal_donecess+egal_worryless+egal_notbigprob+egal_fewerprobs
         MoralTraditionalism=~trad_adjmoral+trad_lifestyl+trad_tolerant+trad_moretard'
-MLMresults<-cfa(model,data=anescpv,group="race",sampling.weights="weight",estimator="MLM")
+MLMresults<-cfa(model=model,data=anescpv,group="race",sampling.weights="weight",estimator="MLM",std.lv=TRUE)
 summary(MLMresults,fit.measures=TRUE,standardized=TRUE)
-
-lavInspect(MLMresults,"cor.all")
-summary(anescpv$race==6)
+fitted(MLMresults)$cov
+lavInspect(MLMresults,"cov.all")
