@@ -43,7 +43,24 @@ MLMresults<-cfa(model,data=RaceGFK,group="race",estimator="MLM")
 summary(MLMresults,fit.measures=TRUE,standardized=TRUE)
 table(RaceGFK$race)
 fitmeasures(MLMresults)
-
-#create visualization 
 library(semPlot)
 semPaths(MLMresults,what="std", nCharNodes=1, rotation=2,intercepts=FALSE)
+library(Hmisc)
+#correlation of entire sample
+dat<-rcorr(as.matrix(RaceGFK[,1:4]),type="pearson")
+dat
+#subset of race
+race1<-subset(RaceGFK, subset=race==1)
+race2<-subset(RaceGFK,subset=race==2)
+race3<-subset(RaceGFK,subset=race==3)
+#correlation of univ by race
+datr1u<-rcorr(as.matrix(race1[,1:4]),type="pearson")
+datr1u
+datr2u<-rcorr(as.matrix(race2[,1:4]),type="pearson")
+datr2u
+datr3u<-rcorr(as.matrix(race3[,1:4]),type="pearson")
+datr3u
+#correlation of cons by race
+datr1c<-rcorr(as.matrix(race1[,5:8]),type="pearson")
+datr2c<-rcorr(as.matrix(race2[,5:8]),type="pearson")
+datr3c<-rcorr(as.matrix(race3[,5:8]),type="pearson")
