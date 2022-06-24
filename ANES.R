@@ -29,7 +29,7 @@ anescpv<-data.frame(egal, trad)
 #merging the 2 cpv into one table
 anescpv$race<-anes2016$V161310x
 anescpv$weight<-anes2016$V160102
-table(anes2016$V161310x)/4270
+head(anes2016$V161310x)
 table(anes2016$V161267)
 mean(anes2016$V161267, na.rm=TRUE)
 sd(anes2016$V161267, na.rm=TRUE)
@@ -55,18 +55,29 @@ anescpv$trad_moretard<-as.numeric(anescpv$trad_moretard)
 class(anescpv$race)
 anescpv$race<-as.character(anescpv$race)
 class(anescpv$weight)
-
+egal<-egal
 #removing NAs from practice subset
 colnames(anes2016)
-anescpv<-anescpv[(!is.na(anescpv$egal_donecess)&!is.na(anescpv$egal_worryless)&!is.na(anescpv$egal_notbigprob)
-                  &!is.na(anescpv$egal_fewerprobs)&!is.na(anescpv$trad_adjmoral)&!is.na(anescpv$trad_lifestyl)
-                  &!is.na(anescpv$trad_tolerant)&!is.na(anescpv$trad_moretard)&!is.na(anescpv$race)),]
+anescpv<-anescpv[(!is.na(anescpv$egal_donecess)&!is.na(anescpv$egal_worryless)&!
+                    is.na(anescpv$egal_notbigprob)
+                  &!is.na(anescpv$egal_fewerprobs)&!is.na(anescpv$trad_adjmoral)
+                  &!is.na(anescpv$trad_lifestyl)
+                  &!is.na(anescpv$trad_tolerant)&!is.na(anescpv$trad_moretard)&!
+                    is.na(anescpv$race)),]
 summary(anescpv)
 #model for data from subset
 library(lavaan)
 model<-'Equality=~egal_donecess+egal_worryless+egal_notbigprob+egal_fewerprobs
         MoralTraditionalism=~trad_adjmoral+trad_lifestyl+trad_tolerant+trad_moretard'
-MLMresults<-cfa(model=model,data=anescpv,group="race",sampling.weights="weight",estimator="MLM",std.lv=TRUE)
+MLMresults<-cfa(model=model,data=anescpv,group="race",sampling.weights="weight",
+                estimator="MLM",std.lv=TRUE)
 summary(MLMresults,fit.measures=TRUE,standardized=TRUE)
 fitted(MLMresults)$cov
 lavInspect(MLMresults,"cov.all")
+
+library(Hmisc)
+dat<-rcorr(as.matrix(anescpv[,5:8]),type="pearson")
+dat
+cor.test(anescpv$egal_donecess,anescpv$egal_fewerprobs)
+sum(table(anescpv$race))
+##how to see if people marked more than one?
