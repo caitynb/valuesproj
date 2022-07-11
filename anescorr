@@ -1,0 +1,65 @@
+#import dataset and load libraries
+library(haven)
+anes_timeseries_2016 <- read_sav("anes_timeseries_2016.sav")
+anes2016<-anes_timeseries_2016
+library(data.table)
+library(tidyr)
+library(dplyr)
+library(naniar)
+library(Hmisc)
+#egal dataframe
+egal<-data.frame(anes2016$V162243, anes2016$V162244, anes2016$V162245, anes2016$V162246)
+#trad dataframe
+trad<-data.frame(anes2016$V162207, anes2016$V162208, anes2016$V162209, anes2016$V162210)
+#combine in their own
+anescpv<-cbind.data.frame(egal, trad)
+#add race and weight column
+anescpv$race<-anes2016$V161310x
+anescpv$weight<-anes2016$V160102
+#replace missing data points with na (-2, -9, etc)
+summary(anescpv)
+anescpv[anescpv<=0] <- NA
+#rename column names 
+colnames(anescpv)<-c("V162243","V162244","V162245","V162246","V162207",
+                     "V162208","V162209","V162210", "race","weight")
+#omit NAs
+anescpv<-anescpv[(!is.na(anescpv$V162243)&!is.na(anescpv$V162244)
+                          &!is.na(anescpv$V162245)
+                          &!is.na(anescpv$V162246)&!is.na(anescpv$V162207)
+                          &!is.na(anescpv$V162208)
+                          &!is.na(anescpv$V162209)&!is.na(anescpv$V162210)),]
+
+#subset for each race
+aneswhite<-subset(anescpv, race==1)
+anesblack<-subset(anescpv, race==2)
+aneshisp<-subset(anescpv,race==5)
+
+
+#whole sample
+wholetrad<-rcorr(as.matrix(anescpv[,5:8]),type="pearson")
+wholeegal<-rcorr(as.matrix(anescpv[,1:4]),type="pearson")
+mean(abs(wholetrad))
+mean(abs(wholeegal$r))
+wholetrad<-cor(anescpv[,5:8])
+#white sample
+whitetrad<-rcorr(as.matrix(aneswhite[,5:8]),type="pearson")
+whiteegal<-rcorr(as.matrix(aneswhite[,1:4]),type="pearson")
+mean(whitetrad$r)
+mean(abs(whitetrad$r))
+mean(whiteegal$r)
+mean(abs(whiteegal$r))
+#black sample
+blacktrad<-rcorr(as.matrix(anesblack[,5:8]),type="pearson")
+blackegal<-rcorr(as.matrix(anesblack[,1:4]),type="pearson")
+mean(blacktrad$r)
+mean(abs(blacktrad$r))
+mean(blackegal$r)
+mean(abs(blackegal$r))
+#hispanic sample
+hisptrad<-rcorr(as.matrix(aneshisp[,5:8]),type="pearson")
+hispegal<-rcorr(as.matrix(aneshisp[,1:4]),type="pearson")
+mean(hisptrad$r)
+mean(abs(hisptrad$r))
+mean(hispegal$r)
+mean(abs(hispegal$r))
+
