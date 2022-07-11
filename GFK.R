@@ -34,7 +34,7 @@ cons<-data.frame(RaceGFK$cons1,RaceGFK$cons2,RaceGFK$cons3,RaceGFK$cons4)
 #remove NA
 RaceGFK<-RaceGFK[(!is.na(RaceGFK$univ1)&!is.na(RaceGFK$univ2)&!is.na(RaceGFK$univ3)
                     &!is.na(RaceGFK$univ4)&!is.na(RaceGFK$cons1)&!is.na(RaceGFK$cons2)
-                    &!is.na(RaceGFK$cons3)&!is.na(RaceGFK$cons4)&!is.na(RaceGFK$race)),]
+                    &!is.na(RaceGFK$cons3)&!is.na(RaceGFK$cons4)),]
 #cfa
 colnames(RaceGFK)
 model<-'Universalism=~univ1+univ2+univ3+univ4
@@ -49,6 +49,9 @@ library(Hmisc)
 #correlation of entire sample
 dat<-rcorr(as.matrix(RaceGFK[,1:4]),type="pearson")
 dat
+dat2<-rcorr(as.matrix(RaceGFK[,5:8]),type="pearson")
+dat2
+mean(dat2$r)
 #subset of race
 race1<-subset(RaceGFK, subset=race==1)
 race2<-subset(RaceGFK,subset=race==2)
@@ -56,11 +59,17 @@ race3<-subset(RaceGFK,subset=race==3)
 #correlation of univ by race
 datr1u<-rcorr(as.matrix(race1[,1:4]),type="pearson")
 datr1u
+mean(datr1u$r)
 datr2u<-rcorr(as.matrix(race2[,1:4]),type="pearson")
 datr2u
+mean(datr2u$r)
 datr3u<-rcorr(as.matrix(race3[,1:4]),type="pearson")
 datr3u
+mean(datr3u$r)
 #correlation of cons by race
 datr1c<-rcorr(as.matrix(race1[,5:8]),type="pearson")
+mean(datr1c$r)
 datr2c<-rcorr(as.matrix(race2[,5:8]),type="pearson")
+mean(datr2c$r)
 datr3c<-rcorr(as.matrix(race3[,5:8]),type="pearson")
+mean(datr3c$r)
