@@ -1,4 +1,5 @@
 #load the libraries
+#import dataset and load libraries
 library(haven)
 anes_timeseries_2016 <- read_sav("anes_timeseries_2016.sav")
 anes2016<-anes_timeseries_2016
@@ -6,34 +7,62 @@ library(data.table)
 library(tidyr)
 library(dplyr)
 library(naniar)
-#long way of removing values of missing data from set
-anes2016<-anes2016 %>% replace_with_na(replace=list(V162243=c(999, 998, -9, -8, -7, -6, -5, -4, -2)))
-anes2016<-anes2016 %>% replace_with_na(replace=list(V162244=c(999, 998, -9, -8, -7, -6, -5, -4, -2)))
-anes2016<-anes2016 %>% replace_with_na(replace=list(V162245=c(999, 998, -9, -8, -7, -6, -5, -4, -2)))
-anes2016<-anes2016 %>% replace_with_na(replace=list(V162246=c(999, 998, -9, -8, -7, -6, -5, -4, -2)))
-anes2016<-anes2016 %>% replace_with_na(replace=list(V162207=c(999, 998, -9, -8, -7, -6, -5, -4, -2)))
-anes2016<-anes2016 %>% replace_with_na(replace=list(V162208=c(999, 998, -9, -8, -7, -6, -5, -4, -2)))
-anes2016<-anes2016 %>% replace_with_na(replace=list(V162209=c(999, 998, -9, -8, -7, -6, -5, -4, -2)))
-anes2016<-anes2016 %>% replace_with_na(replace=list(V162210=c(999, 998, -9, -8, -7, -6, -5, -4, -2)))
-anes2016<-anes2016 %>% replace_with_na(replace=list(V161267=c(999, 998, -9, -8, -7, -6, -5, -4, -2)))
-anes2016<-anes2016 %>% replace_with_na(replace=list(V161310x=c(999, 998, -9, -8, -7, -6, -5, -4, -2)))
-
-#identifying items of cpv
+library(Hmisc)
+#egal dataframe
 egal<-data.frame(anes2016$V162243, anes2016$V162244, anes2016$V162245, anes2016$V162246)
-colnames(egal)<-c("egal_donecess","egal_worryless","egal_notbigprob","egal_fewerprobs")
+#trad dataframe
 trad<-data.frame(anes2016$V162207, anes2016$V162208, anes2016$V162209, anes2016$V162210)
-colnames(trad)<-c("trad_adjmoral","trad_lifestyl","trad_tolerant","trad_moretard")
-#both of above cateogries are an agree to disagree scale
-#this one they are given options
-anescpv<-data.frame(egal, trad)
-#merging the 2 cpv into one table
+#combine in their own
+anescpv<-cbind.data.frame(egal, trad)
+#add race and weight column
 anescpv$race<-anes2016$V161310x
 anescpv$weight<-anes2016$V160102
-head(anes2016$V161310x)
-table(anes2016$V161267)
-mean(anes2016$V161267, na.rm=TRUE)
-sd(anes2016$V161267, na.rm=TRUE)
-table(anes2016$V161342)
+#replace missing data points with na (-2, -9, etc)
+summary(anescpv)
+anescpv[anescpv<=0] <- NA
+#rename column names 
+colnames(anescpv)<-c("V162243","V162244","V162245","V162246","V162207",
+                     "V162208","V162209","V162210", "race","weight")
+#omit NAs
+anescpv<-anescpv[(!is.na(anescpv$V162243)&!is.na(anescpv$V162244)
+                  &!is.na(anescpv$V162245)
+                  &!is.na(anescpv$V162246)&!is.na(anescpv$V162207)
+                  &!is.na(anescpv$V162208)
+                  &!is.na(anescpv$V162209)&!is.na(anescpv$V162210)),]
+
+#subset for each race
+aneswhite<-subset(anescpv, race==1)
+anesblack<-subset(anescpv, race==2)
+aneshisp<-subset(anescpv,race==5)
+
+
+#whole sample
+wholetrad<-rcorr(as.matrix(anescpv[,5:8]),type="pearson")
+wholeegal<-rcorr(as.matrix(anescpv[,1:4]),type="pearson")
+mean(abs(wholetrad))
+mean(abs(wholeegal$r))
+wholetrad<-cor(anescpv[,5:8])
+#white sample
+whitetrad<-rcorr(as.matrix(aneswhite[,5:8]),type="pearson")
+whiteegal<-rcorr(as.matrix(aneswhite[,1:4]),type="pearson")
+mean(whitetrad$r)
+mean(abs(whitetrad$r))
+mean(whiteegal$r)
+mean(abs(whiteegal$r))
+#black sample
+blacktrad<-rcorr(as.matrix(anesblack[,5:8]),type="pearson")
+blackegal<-rcorr(as.matrix(anesblack[,1:4]),type="pearson")
+mean(blacktrad$r)
+mean(abs(blacktrad$r))
+mean(blackegal$r)
+mean(abs(blackegal$r))
+#hispanic sample
+hisptrad<-rcorr(as.matrix(aneshisp[,5:8]),type="pearson")
+hispegal<-rcorr(as.matrix(aneshisp[,1:4]),type="pearson")
+mean(hisptrad$r)
+mean(abs(hisptrad$r))
+mean(hispegal$r)
+mean(abs(hispegal$r))
 
 #change all columns in subset to numeric
 class(anescpv$egal_donecess)
@@ -75,9 +104,4 @@ summary(MLMresults,fit.measures=TRUE,standardized=TRUE)
 fitted(MLMresults)$cov
 lavInspect(MLMresults,"cov.all")
 
-library(Hmisc)
-dat<-rcorr(as.matrix(anescpv[,5:8]),type="pearson")
-dat
-cor.test(anescpv$egal_donecess,anescpv$egal_fewerprobs)
-sum(table(anescpv$race))
-##how to see if people marked more than one?
+
