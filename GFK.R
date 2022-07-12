@@ -8,7 +8,7 @@ library(psy)
 library(tidyverse)
 library(xtable)
 #upload data
-RaceGFK <- read_dta("C:/Users/Caity/Downloads/RaceGFK.dta")
+RaceGFK <- read_dta("/Users/Caity/Downloads/RaceGFK.dta")
 #make all numeric
 class(RaceGFK$univ1)
 RaceGFK$univ1<-as.numeric(RaceGFK$univ1)
@@ -33,8 +33,8 @@ univ<-data.frame(RaceGFK$univ1,RaceGFK$univ2,RaceGFK$univ3,RaceGFK$univ4)
 cons<-data.frame(RaceGFK$cons1,RaceGFK$cons2,RaceGFK$cons3,RaceGFK$cons4)
 #remove NA
 RaceGFK<-RaceGFK[(!is.na(RaceGFK$univ1)&!is.na(RaceGFK$univ2)&!is.na(RaceGFK$univ3)
-                    &!is.na(RaceGFK$univ4)&!is.na(RaceGFK$cons1)&!is.na(RaceGFK$cons2)
-                    &!is.na(RaceGFK$cons3)&!is.na(RaceGFK$cons4)),]
+                  &!is.na(RaceGFK$univ4)&!is.na(RaceGFK$cons1)&!is.na(RaceGFK$cons2)
+                  &!is.na(RaceGFK$cons3)&!is.na(RaceGFK$cons4)),]
 #cfa
 colnames(RaceGFK)
 model<-'Universalism=~univ1+univ2+univ3+univ4
@@ -73,3 +73,11 @@ datr2c<-rcorr(as.matrix(race2[,5:8]),type="pearson")
 mean(datr2c$r)
 datr3c<-rcorr(as.matrix(race3[,5:8]),type="pearson")
 mean(datr3c$r)
+
+#make scatterplot
+colnames(univ)<-c("Item 1", "Item 2", "Item 3", "Item 4")
+install.packages("corrplot")
+library(corrplot)
+corrplot(dat$r, type="lower", tl.col="black")
+corrplot(dat$r, type="lower",method="shade", 
+         addCoef.col="black",tl.pos="n",p.mat=dat$p, sig.level=0.05)
