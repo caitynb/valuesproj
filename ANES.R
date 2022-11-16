@@ -1,107 +1,87 @@
-#load the libraries
-#import dataset and load libraries
+####set personal work environment
+setwd("C:/Users/Caity/Downloads/McNair_Values")
+
+####clean out R environment
+rm(list=ls())
+
+####import dataset and load libraries
 library(haven)
-anes_timeseries_2016 <- read_sav("anes_timeseries_2016.sav")
-anes2016<-anes_timeseries_2016
 library(data.table)
 library(tidyr)
 library(dplyr)
 library(naniar)
 library(Hmisc)
-#egal dataframe
-egal<-data.frame(anes2016$V162243, anes2016$V162244, anes2016$V162245, anes2016$V162246)
-#trad dataframe
-trad<-data.frame(anes2016$V162207, anes2016$V162208, anes2016$V162209, anes2016$V162210)
-#combine in their own
-anescpv<-cbind.data.frame(egal, trad)
-#add race and weight column
-anescpv$race<-anes2016$V161310x
-anescpv$weight<-anes2016$V160102
-#replace missing data points with na (-2, -9, etc)
-summary(anescpv)
-anescpv[anescpv<=0] <- NA
-#rename column names 
-colnames(anescpv)<-c("V162243","V162244","V162245","V162246","V162207",
-                     "V162208","V162209","V162210", "race","weight")
-#omit NAs
-anescpv<-anescpv[(!is.na(anescpv$V162243)&!is.na(anescpv$V162244)
-                  &!is.na(anescpv$V162245)
-                  &!is.na(anescpv$V162246)&!is.na(anescpv$V162207)
-                  &!is.na(anescpv$V162208)
-                  &!is.na(anescpv$V162209)&!is.na(anescpv$V162210)),]
-
-#subset for each race
-aneswhite<-subset(anescpv, race==1)
-anesblack<-subset(anescpv, race==2)
-aneshisp<-subset(anescpv,race==5)
-
-
-#whole sample
-wholetrad<-rcorr(as.matrix(anescpv[,5:8]),type="pearson")
-wholeegal<-rcorr(as.matrix(anescpv[,1:4]),type="pearson")
-mean(abs(wholetrad))
-mean(abs(wholeegal$r))
-wholetrad<-cor(anescpv[,5:8])
-#white sample
-whitetrad<-rcorr(as.matrix(aneswhite[,5:8]),type="pearson")
-whiteegal<-rcorr(as.matrix(aneswhite[,1:4]),type="pearson")
-mean(whitetrad$r)
-mean(abs(whitetrad$r))
-mean(whiteegal$r)
-mean(abs(whiteegal$r))
-#black sample
-blacktrad<-rcorr(as.matrix(anesblack[,5:8]),type="pearson")
-blackegal<-rcorr(as.matrix(anesblack[,1:4]),type="pearson")
-mean(blacktrad$r)
-mean(abs(blacktrad$r))
-mean(blackegal$r)
-mean(abs(blackegal$r))
-#hispanic sample
-hisptrad<-rcorr(as.matrix(aneshisp[,5:8]),type="pearson")
-hispegal<-rcorr(as.matrix(aneshisp[,1:4]),type="pearson")
-mean(hisptrad$r)
-mean(abs(hisptrad$r))
-mean(hispegal$r)
-mean(abs(hispegal$r))
-
-#change all columns in subset to numeric
-class(anescpv$egal_donecess)
- anescpv$egal_donecess<-as.numeric(anescpv$egal_donecess)
-class(anescpv$egal_worryless)
-anescpv$egal_worryless<-as.numeric(anescpv$egal_worryless)
-class(anescpv$egal_notbigprob)
-anescpv$egal_notbigprob<-as.numeric(anescpv$egal_notbigprob)
-class(anescpv$egal_fewerprobs)
-anescpv$egal_fewerprobs<-as.numeric(anescpv$egal_fewerprobs)
-class(anescpv$trad_adjmoral)
-anescpv$trad_adjmoral<-as.numeric(anescpv$trad_adjmoral)
-class(anescpv$trad_lifestyl)
-anescpv$trad_lifestyl<-as.numeric(anescpv$trad_lifestyl)
-class(anescpv$trad_tolerant)
-anescpv$trad_tolerant<-as.numeric(anescpv$trad_tolerant)
-class(anescpv$trad_moretard)
-anescpv$trad_moretard<-as.numeric(anescpv$trad_moretard)
-class(anescpv$race)
-anescpv$race<-as.character(anescpv$race)
-class(anescpv$weight)
-egal<-egal
-#removing NAs from practice subset
-colnames(anes2016)
-anescpv<-anescpv[(!is.na(anescpv$egal_donecess)&!is.na(anescpv$egal_worryless)&!
-                    is.na(anescpv$egal_notbigprob)
-                  &!is.na(anescpv$egal_fewerprobs)&!is.na(anescpv$trad_adjmoral)
-                  &!is.na(anescpv$trad_lifestyl)
-                  &!is.na(anescpv$trad_tolerant)&!is.na(anescpv$trad_moretard)&!
-                    is.na(anescpv$race)),]
-summary(anescpv)
-#model for data from subset
 library(lavaan)
-model<-'Equality=~egal_donecess+egal_worryless+egal_notbigprob+egal_fewerprobs
-        MoralTraditionalism=~trad_adjmoral+trad_lifestyl+trad_tolerant+trad_moretard'
-MLMresults<-cfa(model=model,data=anescpv,group="race",sampling.weights="weight",
-                estimator="MLM",std.lv=TRUE)
-summary(MLMresults,fit.measures=TRUE,standardized=TRUE)
-fitted(MLMresults)$cov
-lavInspect(MLMresults,"cov.all")
+library(psy)
+library(tidyverse)
+library(xtable)
+library(car)
+library(summarytools)
 
+anes_timeseries_2016 <- read_sav("anes_timeseries_2016.sav")
+anes2016<-anes_timeseries_2016
+
+####create new variables from original ANES variables before data cleaning
+#moral traditionalism items
+anes2016$moral2<-anes2016$V162207
+anes2016$moral1<-anes2016$V162208
+anes2016$moral3<-anes2016$V162209
+anes2016$moral4<-anes2016$V162210
+
+#race and weights
+anes2016$race<-anes2016$V161310x
+anes2016$weight<-anes2016$V160102
+
+table(anes2016$race)
+
+#remove negative values and replace with NA
+anes2016$moral1<-ifelse(anes2016$moral1<0,NA,anes2016$moral1)
+anes2016$moral2<-ifelse(anes2016$moral2<0,NA,anes2016$moral2)
+anes2016$moral3<-ifelse(anes2016$moral3<0,NA,anes2016$moral3)
+anes2016$moral4<-ifelse(anes2016$moral4<0,NA,anes2016$moral4)
+
+#race needs special coding, the goal is to have Hispanic (originally identified by value 5)
+anes2016$race<-ifelse(anes2016$race==3,NA,anes2016$race)
+anes2016$race<-ifelse(anes2016$race==5,3,anes2016$race)
+anes2016$race<-ifelse(anes2016$race<0|anes2016$race>3,NA,anes2016$race)
+
+#recode items to make them reverse coded, so a 5 indicates a stronger 
+# level of traditionalism and a 1 is a weak level of traditionalism
+anes2016$moral1<-recode(anes2016$moral1,"1=5;2=4;3=3;4=2;5=1")
+anes2016$moral4<-recode(anes2016$moral4,"1=5;2=4;3=3;4=2;5=1")
+
+#next step of cleaning that makes the correlations easy is to subset the factors
+# of interest (the moral traditionalism items and race)
+aneswhole<-subset(anes2016,select=c(moral1,moral2,moral3,moral4,race))
+aneswhole<-aneswhole[(!is.na(aneswhole$moral1)&!is.na(aneswhole$moral2)
+                   &!is.na(aneswhole$moral3)&!is.na(aneswhole$moral4)),]
+
+########create correlation matrices
+#whole population
+cor(aneswholen)
+rcorr(as.matrix(aneswholen[,1:4]))
+cor(subset(aneswholen$race==1))
+
+#white sample
+aneswhite<-subset(aneswholen, race==1)
+cor(aneswhite[,1:4])
+rcorr(as.matrix(aneswhite[,1:4]))  
+
+#black sample
+anesblack<-subset(aneswholen, race==2)
+cor(anesblack[,1:4])
+rcorr(as.matrix(anesblack[,1:4]))
+
+#hispanic sample
+aneshisp<-subset(aneswholen,race==3)
+cor(aneshisp[,1:4])
+rcorr(as.matrix(aneshisp[,1:4]))
+
+
+
+ggplot(data=datt, aes(x=sample, y=ravg, fill=value)) +
+  geom_bar(stat="identity", position=position_dodge())+
+  geom_text(aes(label=ravg), vjust=1.5, color="black",
+            position = position_dodge(0.9), size=5)+
+  theme_minimal()+ylab(label="Average Correlation")+xlab(label="Race of Sample")+scale_fill_brewer(palette="Blues")+theme(legend.position="top",legend.title=element_blank())+ggtitle("Core Political Values")
 
