@@ -58,30 +58,47 @@ aneswhole<-aneswhole[(!is.na(aneswhole$moral1)&!is.na(aneswhole$moral2)
 
 ########create correlation matrices
 #whole population
-cor(aneswholen)
-rcorr(as.matrix(aneswholen[,1:4]))
-cor(subset(aneswholen$race==1))
+wholecor<-cor(aneswhole[,1:4])
+lowerwhole<-wholecor[lower.tri(wholecor)]
+mean(lowerwhole) 
+wh<-round(mean(lowerwhole), digits=2)
 
 #white sample
-aneswhite<-subset(aneswholen, race==1)
-cor(aneswhite[,1:4])
-rcorr(as.matrix(aneswhite[,1:4]))  
+aneswhite<-subset(aneswhole, race==1)
+whitecor<-cor(aneswhite[,1:4])
+lowerwhite<-whitecor[lower.tri(whitecor)]
+mean(lowerwhite) 
+wi<-round(mean(lowerwhite), digits=2)
 
 #black sample
-anesblack<-subset(aneswholen, race==2)
-cor(anesblack[,1:4])
-rcorr(as.matrix(anesblack[,1:4]))
+anesblack<-subset(aneswhole, race==2)
+blackcor<-cor(anesblack[,1:4])
+lowerblack<-blackcor[lower.tri(blackcor)]
+mean(lowerblack)
+b<-round(mean(lowerblack), digits=2)
 
 #hispanic sample
-aneshisp<-subset(aneswholen,race==3)
-cor(aneshisp[,1:4])
-rcorr(as.matrix(aneshisp[,1:4]))
+aneshisp<-subset(aneswhole,race==3)
+hispcor<-cor(aneshisp[,1:4])
+lowerhisp<-hispcor[lower.tri(hispcor)]
+h<-round(mean(lowerhisp), digits=2)
 
 
 
-ggplot(data=datt, aes(x=sample, y=ravg, fill=value)) +
-  geom_bar(stat="identity", position=position_dodge())+
-  geom_text(aes(label=ravg), vjust=1.5, color="black",
-            position = position_dodge(0.9), size=5)+
-  theme_minimal()+ylab(label="Average Correlation")+xlab(label="Race of Sample")+scale_fill_brewer(palette="Blues")+theme(legend.position="top",legend.title=element_blank())+ggtitle("Core Political Values")
+###################correlation figure
+#create dataframe for figure
+average<-c(wh, wi, b, h)
+race<-c("Whole","White","Black","Hispanic")
+dat<-cbind.data.frame(average,race)
 
+#relevel to ensure ordering on ggplot matches
+dat$race<-factor(dat$race, levels=c("Whole","White","Black","Hispanic"))
+
+#ggplot coding
+anesplot<-ggplot(dat, aes(x=race, y=average,fill=race))+geom_bar(stat="identity")+theme_classic()+
+  geom_text(aes(label=average), vjust=1.5, color="black",position = position_dodge(0.9), size=4)
+anesplot<-anesplot + labs(title="Average Correlation for Moral Traditionalism \nby Race (Figure 1)",subtitle="",y="Average Correlation",x="Race")+
+  theme(legend.position="",legend.title=element_blank())+
+  scale_fill_manual(values = c("Whole"="gray90", "White"="gray70", "Black"="gray50","Hispanic"="gray35"))
+anesplot
+ggsave("Goren_Figure1.pdf")
