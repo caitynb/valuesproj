@@ -60,21 +60,18 @@ aneswhole<-aneswhole[(!is.na(aneswhole$moral1)&!is.na(aneswhole$moral2)
 #whole population
 wholecor<-cor(aneswhole[,1:4])
 lowerwhole<-wholecor[lower.tri(wholecor)]
-mean(lowerwhole) 
 wh<-round(mean(lowerwhole), digits=2)
 
 #white sample
 aneswhite<-subset(aneswhole, race==1)
 whitecor<-cor(aneswhite[,1:4])
 lowerwhite<-whitecor[lower.tri(whitecor)]
-mean(lowerwhite) 
 wi<-round(mean(lowerwhite), digits=2)
 
 #black sample
 anesblack<-subset(aneswhole, race==2)
 blackcor<-cor(anesblack[,1:4])
 lowerblack<-blackcor[lower.tri(blackcor)]
-mean(lowerblack)
 b<-round(mean(lowerblack), digits=2)
 
 #hispanic sample
