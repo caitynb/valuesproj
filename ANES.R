@@ -60,42 +60,39 @@ aneswhole<-aneswhole[(!is.na(aneswhole$moral1)&!is.na(aneswhole$moral2)
 #whole population
 wholecor<-cor(aneswhole[,1:4])
 lowerwhole<-wholecor[lower.tri(wholecor)]
-wh<-round(mean(lowerwhole), digits=2)
+wh<-format(round(mean(lowerwhole), digits=2),nsmall=2)
 
 #white sample
 aneswhite<-subset(aneswhole, race==1)
 whitecor<-cor(aneswhite[,1:4])
 lowerwhite<-whitecor[lower.tri(whitecor)]
-wi<-round(mean(lowerwhite), digits=2)
+wi<-format(round(mean(lowerwhite), digits=2),nsmall=2)
 
 #black sample
 anesblack<-subset(aneswhole, race==2)
 blackcor<-cor(anesblack[,1:4])
 lowerblack<-blackcor[lower.tri(blackcor)]
-b<-round(mean(lowerblack), digits=2)
+b<-format(round(mean(lowerblack), digits=2),nsmall=2)
 
 #hispanic sample
 aneshisp<-subset(aneswhole,race==3)
 hispcor<-cor(aneshisp[,1:4])
 lowerhisp<-hispcor[lower.tri(hispcor)]
-h<-round(mean(lowerhisp), digits=2)
-
-
+h<-format(round(mean(lowerhisp), digits=2),nsmall=2)
 
 ###################correlation figure
 #create dataframe for figure
 average<-c(wh, wi, b, h)
-race<-c("Whole","White","Black","Hispanic")
+race<-c("Whole","White","Black","Latinx")
 dat<-cbind.data.frame(average,race)
 
 #relevel to ensure ordering on ggplot matches
-dat$race<-factor(dat$race, levels=c("Whole","White","Black","Hispanic"))
-
+dat$race<-factor(dat$race, levels=c("Whole","White","Black","Latinx"))
+dat$avg<-as.numeric(dat$average)
 #ggplot coding
-anesplot<-ggplot(dat, aes(x=race, y=average,fill=race))+geom_bar(stat="identity")+theme_classic()+
-  geom_text(aes(label=average), vjust=1.5, color="black",position = position_dodge(0.9), size=4)
-anesplot<-anesplot + labs(title="Average Correlation for Moral Traditionalism \nby Race (Figure 1)",subtitle="",y="Average Correlation",x="Race")+
-  theme(legend.position="",legend.title=element_blank())+
-  scale_fill_manual(values = c("Whole"="gray90", "White"="gray70", "Black"="gray50","Hispanic"="gray35"))
+anesplot<-ggplot(dat, aes(x=race, y=avg,fill=race))+geom_bar(stat="identity",position="dodge")+theme_classic()+
+  geom_text(aes(label=average), vjust=-0.2,color="black", size=3.5)
+anesplot<-anesplot + labs(y="Mean Correlation",x="",title="")+theme(legend.position="",legend.title=element_blank())+
+  scale_fill_manual(values = c("Whole"="gray90", "White"="gray70", "Black"="gray50","Latinx"="gray35"))+scale_y_continuous(labels = scales::number_format(accuracy = 0.01),limits=c(0,0.45))
 anesplot
-ggsave("Goren_Figure1.pdf")
+ggsave("MTCorr_Figure.pdf")
