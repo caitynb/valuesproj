@@ -52,6 +52,7 @@ anes2016$moral4<-recode(anes2016$moral4,"1=5;2=4;3=3;4=2;5=1")
 
 #next step of cleaning that makes the correlations easy is to subset the factors
 # of interest (the moral traditionalism items and race)
+aneswhole<-subset(anes2016, race==1|2|3)
 aneswhole<-subset(anes2016,select=c(moral1,moral2,moral3,moral4,race))
 aneswhole<-aneswhole[(!is.na(aneswhole$moral1)&!is.na(aneswhole$moral2)
                    &!is.na(aneswhole$moral3)&!is.na(aneswhole$moral4)),]
@@ -90,9 +91,12 @@ dat<-cbind.data.frame(average,race)
 dat$race<-factor(dat$race, levels=c("Whole","White","Black","Latinx"))
 dat$avg<-as.numeric(dat$average)
 #ggplot coding
-anesplot<-ggplot(dat, aes(x=race, y=avg,fill=race))+geom_bar(stat="identity",position="dodge")+theme_classic()+
-  geom_text(aes(label=average), vjust=-0.2,color="black", size=3.5)
-anesplot<-anesplot + labs(y="Mean Correlation",x="",title="")+theme(legend.position="",legend.title=element_blank())+
-  scale_fill_manual(values = c("Whole"="gray90", "White"="gray70", "Black"="gray50","Latinx"="gray35"))+scale_y_continuous(labels = scales::number_format(accuracy = 0.01),limits=c(0,0.45))
-anesplot
-ggsave("MTCorr_Figure.pdf")
+
+anes16mt<-ggplot(dat, aes(x=race, y=avg,fill=race,))+
+  geom_bar(stat="identity")+
+  theme_classic()+
+  geom_text(aes(label=average), vjust=-0.2,color="black", size=4)+
+  scale_fill_manual(values = c("Whole"="gray70", "White"="gray60", "Black"="gray40","Latinx"="gray25"))+
+  labs(y="Mean Correlation",x="",title="")+theme(legend.position="",legend.title=element_blank())
+anes16mt
+ggsave(file="fig_anes16MT.png", anes16mt, width = 4, height = 4)
