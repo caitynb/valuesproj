@@ -1,0 +1,77 @@
+###### clear working environment
+rm(list=ls())
+
+## set wd
+setwd("C:/Users/Caity/Downloads/McNair_Values")
+
+### load in gss data and libraries
+library(haven)
+library(car)
+library(ggplot2)
+gss2012 <- read_excel("35478-0001-Data.xlsx")
+
+gss12sub<-subset(gss2012,select=c(RACE,VALTRDN,VALPRPR,VALMOD,VALRULE))
+
+###code anything that isnt 1 or 2 as NA (1 white 2 black)
+gss12sub$RACE<-ifelse(gss12sub$RACE<3,gss12sub$RACE,NA)
+
+### tradition is important / follow customs family and religion
+gss12sub$VALTRDN<-ifelse(gss12sub$VALTRDN==0|gss12sub$VALTRDN==8|gss12sub$VALTRDN==9,NA,gss12sub$VALTRDN)
+gss12sub$VALTRDN<-recode(gss12sub$VALTRDN,"1=6;2=5;3=4;4=3;5=2;6=1")
+table(gss12sub$VALTRDN)
+### behaving properly / avoid doing anything people say wrong
+gss12sub$VALPRPR<-ifelse(gss12sub$VALPRPR==0|gss12sub$VALPRPR==8|gss12sub$VALPRPR==9,NA,gss12sub$VALPRPR)
+gss12sub$VALPRPR<-recode(gss12sub$VALPRPR,"1=6;2=5;3=4;4=3;5=2;6=1")
+
+### be humble and modest / try not draw attention to self
+gss12sub$VALMOD<-ifelse(gss12sub$VALMOD==0|gss12sub$VALMOD==8|gss12sub$VALMOD==9,NA,gss12sub$VALMOD)
+gss12sub$VALMOD<-recode(gss12sub$VALMOD,"1=6;2=5;3=4;4=3;5=2;6=1")
+
+### do as told / follow rules at all times
+gss12sub$VALRULE<-ifelse(gss12sub$VALRULE==0|gss12sub$VALRULE==8|gss12sub$VALRULE==9,NA,gss12sub$VALRULE)
+gss12sub$VALRULE<-recode(gss12sub$VALRULE,"1=6;2=5;3=4;4=3;5=2;6=1")
+
+
+gss12whole<-gss12sub[(!is.na(gss12sub$VALTRDN)&!is.na(gss12sub$VALPRPR)
+                      &!is.na(gss12sub$VALMOD)&!is.na(gss12sub$VALRULE)&!is.na(gss12sub$RACE)),]
+
+
+########create correlation matrices
+#whole population
+wholecor<-cor(gss12whole[,2:5])
+lowerwhole<-wholecor[lower.tri(wholecor)]
+wh<-format(round(mean(lowerwhole), digits=2),nsmall=2)
+
+#white sample
+gsswhite<-subset(gss12whole, RACE==1)
+whitecor<-cor(gsswhite[,2:5])
+lowerwhite<-whitecor[lower.tri(whitecor)]
+wi<-format(round(mean(lowerwhite), digits=2),nsmall=2)
+
+#black sample
+gssblack<-subset(gss12whole, RACE==2)
+blackcor<-cor(gssblack[,2:5])
+lowerblack<-blackcor[lower.tri(blackcor)]
+b<-format(round(mean(lowerblack), digits=2),nsmall=2)
+
+
+###################correlation figure
+#create dataframe for figure
+average<-c(wh, wi, b)
+race<-c("Whole","White","Black")
+dat<-cbind.data.frame(average,race)
+
+#relevel to ensure ordering on ggplot matches
+dat$race<-factor(dat$race, levels=c("Whole","White","Black"))
+dat$avg<-as.numeric(dat$average)
+#ggplot coding
+
+gssplot<-ggplot(dat, aes(x=race, y=avg,fill=race,))+
+  geom_bar(stat="identity")+
+  theme_classic()+
+  geom_text(aes(label=average), vjust=-0.2,color="black", size=4)+
+  scale_fill_manual(values = c("Whole"="gray70", "White"="gray60", "Black"="gray40"))+
+  labs(y="",x="",title="")+theme(legend.position="",legend.title=element_blank())
+gssplot
+ggsave(file="fig_gss12MT.png", gssplot, width = 4, height = 4)
+
