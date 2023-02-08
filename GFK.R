@@ -60,9 +60,10 @@ dat<-cbind.data.frame(average,race)
 dat$race<-factor(dat$race, levels=c("Whole","White","Black","Latinx"))
 dat$avg<-as.numeric(dat$average)
 #ggplot coding
-anesplot<-ggplot(dat, aes(x=race, y=avg,fill=race))+geom_bar(stat="identity",position="dodge")+theme_classic()+
-  geom_text(aes(label=average), vjust=-0.2,color="black", size=3.5)
-anesplot<-anesplot + labs(y="Mean Correlation",x="",title="")+theme(legend.position="",legend.title=element_blank())+
-  scale_fill_manual(values = c("Whole"="gray90", "White"="gray70", "Black"="gray50","Latinx"="gray35"))+scale_y_continuous(labels = scales::number_format(accuracy = 0.01),limits=c(0,0.45))
-anesplot
-ggsave("ConsCorr_Figure.pdf")
+gfkplot<-ggplot(dat, aes(x=race, y=avg,fill=race,))+
+  geom_bar(stat="identity")+
+  theme_classic()+
+  geom_text(aes(label=average), vjust=-0.2,color="black", size=4)+
+  scale_fill_manual(values = c("Whole"="gray70", "White"="gray60", "Black"="gray40"))+
+  labs(y="Mean Correlation",x="",title="")+theme(legend.position="",legend.title=element_blank())
+ggsave(file="fig_GfK15MT.png", gfkplot, width = 4, height = 4)
