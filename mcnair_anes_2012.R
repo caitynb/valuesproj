@@ -7,6 +7,7 @@ rm(list=ls())
 ####import dataset and load libraries
 library(haven)
 library(ggplot2)
+library(car)
 anes2012<-read_dta("anes_timeseries_2012.dta")
 
 
@@ -86,6 +87,6 @@ anes12mt<-ggplot(dat, aes(x=race, y=avg,fill=race,))+
   theme_classic()+
   geom_text(aes(label=average), vjust=-0.2,color="black", size=4)+
   scale_fill_manual(values = c("Whole"="gray70", "White"="gray60", "Black"="gray40","Latinx"="gray25"))+
-  labs(y="Mean Correlation",x="",title="")+theme(legend.position="",legend.title=element_blank())
+  labs(y="",x="",title="")+theme(legend.position="",legend.title=element_blank())
 anes12mt
 ggsave(file="fig_anes12MT.png", anes12mt, width = 4, height = 4)
