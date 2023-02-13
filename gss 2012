@@ -8,6 +8,7 @@ setwd("C:/Users/Caity/Downloads/McNair_Values")
 library(haven)
 library(car)
 library(ggplot2)
+library(readxl)
 gss2012 <- read_excel("35478-0001-Data.xlsx")
 
 gss12sub<-subset(gss2012,select=c(RACE,VALTRDN,VALPRPR,VALMOD,VALRULE))
@@ -17,19 +18,19 @@ gss12sub$RACE<-ifelse(gss12sub$RACE<3,gss12sub$RACE,NA)
 
 ### tradition is important / follow customs family and religion
 gss12sub$VALTRDN<-ifelse(gss12sub$VALTRDN==0|gss12sub$VALTRDN==8|gss12sub$VALTRDN==9,NA,gss12sub$VALTRDN)
-gss12sub$VALTRDN<-recode(gss12sub$VALTRDN,"1=6;2=5;3=4;4=3;5=2;6=1")
+gss12sub$VALTRDN<-car::recode(gss12sub$VALTRDN,"1=6;2=5;3=4;4=3;5=2;6=1")
 table(gss12sub$VALTRDN)
 ### behaving properly / avoid doing anything people say wrong
 gss12sub$VALPRPR<-ifelse(gss12sub$VALPRPR==0|gss12sub$VALPRPR==8|gss12sub$VALPRPR==9,NA,gss12sub$VALPRPR)
-gss12sub$VALPRPR<-recode(gss12sub$VALPRPR,"1=6;2=5;3=4;4=3;5=2;6=1")
+gss12sub$VALPRPR<-car::recode(gss12sub$VALPRPR,"1=6;2=5;3=4;4=3;5=2;6=1")
 
 ### be humble and modest / try not draw attention to self
 gss12sub$VALMOD<-ifelse(gss12sub$VALMOD==0|gss12sub$VALMOD==8|gss12sub$VALMOD==9,NA,gss12sub$VALMOD)
-gss12sub$VALMOD<-recode(gss12sub$VALMOD,"1=6;2=5;3=4;4=3;5=2;6=1")
+gss12sub$VALMOD<-car::recode(gss12sub$VALMOD,"1=6;2=5;3=4;4=3;5=2;6=1")
 
 ### do as told / follow rules at all times
 gss12sub$VALRULE<-ifelse(gss12sub$VALRULE==0|gss12sub$VALRULE==8|gss12sub$VALRULE==9,NA,gss12sub$VALRULE)
-gss12sub$VALRULE<-recode(gss12sub$VALRULE,"1=6;2=5;3=4;4=3;5=2;6=1")
+gss12sub$VALRULE<-car::recode(gss12sub$VALRULE,"1=6;2=5;3=4;4=3;5=2;6=1")
 
 
 gss12whole<-gss12sub[(!is.na(gss12sub$VALTRDN)&!is.na(gss12sub$VALPRPR)
@@ -74,4 +75,3 @@ gssplot<-ggplot(dat, aes(x=race, y=avg,fill=race,))+
   labs(y="",x="",title="")+theme(legend.position="",legend.title=element_blank())
 gssplot
 ggsave(file="fig_gss12MT.png", gssplot, width = 4, height = 4)
-
