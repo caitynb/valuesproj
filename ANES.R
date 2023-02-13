@@ -6,17 +6,8 @@ rm(list=ls())
 
 ####import dataset and load libraries
 library(haven)
-library(data.table)
-library(tidyr)
-library(dplyr)
-library(naniar)
-library(Hmisc)
-library(lavaan)
-library(psy)
-library(tidyverse)
-library(xtable)
+library(ggplot2)
 library(car)
-library(summarytools)
 
 anes_timeseries_2016 <- read_sav("anes_timeseries_2016.sav")
 anes2016<-anes_timeseries_2016
@@ -47,8 +38,8 @@ anes2016$race<-ifelse(anes2016$race<0|anes2016$race>3,NA,anes2016$race)
 
 #recode items to make them reverse coded, so a 5 indicates a stronger 
 # level of traditionalism and a 1 is a weak level of traditionalism
-anes2016$moral1<-recode(anes2016$moral1,"1=5;2=4;3=3;4=2;5=1")
-anes2016$moral4<-recode(anes2016$moral4,"1=5;2=4;3=3;4=2;5=1")
+anes2016$moral1<-car::recode(anes2016$moral1,"1=5;2=4;3=3;4=2;5=1")
+anes2016$moral4<-car::recode(anes2016$moral4,"1=5;2=4;3=3;4=2;5=1")
 
 #next step of cleaning that makes the correlations easy is to subset the factors
 # of interest (the moral traditionalism items and race)
@@ -97,6 +88,7 @@ anes16mt<-ggplot(dat, aes(x=race, y=avg,fill=race,))+
   theme_classic()+
   geom_text(aes(label=average), vjust=-0.2,color="black", size=4)+
   scale_fill_manual(values = c("Whole"="gray70", "White"="gray60", "Black"="gray40","Latinx"="gray25"))+
-  labs(y="Mean Correlation",x="",title="")+theme(legend.position="",legend.title=element_blank())
+  labs(y="",x="",title="")+theme(legend.position="",legend.title=element_blank())
 anes16mt
 ggsave(file="fig_anes16MT.png", anes16mt, width = 4, height = 4)
+
